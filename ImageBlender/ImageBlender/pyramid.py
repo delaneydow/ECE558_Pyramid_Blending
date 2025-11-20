@@ -24,7 +24,7 @@ def max_pyr_layers(height, width):
 
     return layers
 
-def ComputePyr(input_image, num_layers, gauss_size = 5, gauss_sigma = 1):
+def ComputePyr(input_image, num_layers, gauss_size = 5, gauss_sigma = 2):
     pad_mode = 'reflect'
     img = input_image.astype(np.float64)
     if img.max() > 1.0:
