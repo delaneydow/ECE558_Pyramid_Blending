@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from skimage import data, color, img_as_float, io
 import os
 from PIL import Image
+from scipy.ndimage import gaussian_filter1d
 
 # === DEFINE PADDING ===
 def add_padding(image, pad_height, pad_width, mode):
@@ -98,20 +99,27 @@ def visualize_spectrum_phase(F: np.ndarray):
     log_magnitude_shifted = np.fft.fftshift(log_magnitude)
     phase_shifted = np.fft.fftshift(phase)
 
-    # display results
-    plt.figure(figsize=(12, 5))
+   # === DEFINE KERNEL ===
+def generate_gaussian_kernel(size, sigma): 
+    """
+    Generates kernel function
+    Args: sigma = STD of Gaussian Distribution 
+    Returns: kenel_2D (2D numpy array) 
+    """
+    if size % 2 == 0:
+        raise ValueError("Kernel size must be an odd integer.")
 
-    plt.subplot(1, 2, 1)
-    plt.imshow(log_magnitude_shifted, cmap='gray')
-    plt.title('Log Magnitude Spectrum')
-    plt.axis('off')
+    # Create 1D Gaussian kernels
+    x = np.linspace(-(size // 2), size // 2, size)
+    gaussian_1d = np.exp(-(x**2) / (2 * sigma**2))
+    gaussian_1d /= np.sum(gaussian_1d) # Normalize
 
-    plt.subplot(1, 2, 2)
-    plt.imshow(phase_shifted, cmap='gray')
-    plt.title('Phase Angle')
-    plt.axis('off')
+    # Create 2D kernel by outer product
+    kernel_2d = np.outer(gaussian_1d, gaussian_1d)
 
-    plt.show()
+    return kernel_2d
+
+
 
 
 
