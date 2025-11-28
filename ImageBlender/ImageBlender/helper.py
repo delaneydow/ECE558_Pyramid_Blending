@@ -74,6 +74,13 @@ def load_image(image_path: str) -> np.ndarray:
 
     return image_array
 
+def load_color_image(image_path: str) -> np.ndarray:
+    # Load an RGB image as float64 in [0,1], shape (H, W, 3).
+    
+    image = Image.open(image_path).convert('RGB')
+    image_array = np.array(image, dtype=np.float64) / 255.0
+    return image_array
+
 
 def dft2_from_fft1(image_array: np.ndarray) -> np.ndarray:
 
