@@ -4,7 +4,7 @@ ECE 558 Final Project
 Welcome to Pyramid Blending! To get started, please review the following: 
 
 1. Program Structure
-   The main contents are found in the ImageBlender/ImageBlender folder of the main repository. Within this folder, the main files of the program are gui.py, helper.py, main.py, and pyramid.py.
+   The main contents are found in the ImageBlender/ImageBlender folder of the main repository. Within this folder, the main files of the program are gui.py, helper.py, main.py, and pyramid.py. The requirements.txt file details all of the required package information used for this program. This emphasizes minimum package versions. 
 
    a) gui.py
 
