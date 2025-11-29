@@ -65,7 +65,6 @@ def conv2(input_image, kernel, pad_mode):
 
 # === HELPER FUNCTIONS ===
 def load_image(image_path: str) -> np.ndarray:
-
     # Load the image using PIL and convert to grayscale
     image = Image.open(image_path).convert('L') #('L' mode = 8-bit grayscale)
 
@@ -83,7 +82,6 @@ def load_color_image(image_path: str) -> np.ndarray:
 
 
 def dft2_from_fft1(image_array: np.ndarray) -> np.ndarray:
-
     # Apply FFT along rows (axis=1)
     fft_rows = np.fft.fft(image_array, axis=1)
 
@@ -94,7 +92,6 @@ def dft2_from_fft1(image_array: np.ndarray) -> np.ndarray:
 
 
 def visualize_spectrum_phase(F: np.ndarray):
-
     # Compute magnitude and phase
     magnitude = np.abs(F)
     phase = np.angle(F)

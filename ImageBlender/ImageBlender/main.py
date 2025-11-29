@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # START CLOCK TO RECORD SPEED OF PROGRAM
     program_start = time.perf_counter()
 
-    # --- GUI: create a mask if you want to generate a new one ---
+    # GUI
     gui_start = time.perf_counter()
     root = tk.Tk()
     app = ROIAnnotation(root)
@@ -44,18 +44,15 @@ if __name__ == "__main__":
 
         if src.shape[0:2] != mask.shape[0:2]:
             raise ValueError(
-                f"For pair {idx}, source and mask must match spatially. "
-                f"Got src {src.shape}, mask {mask.shape}"
+                "Source and mask must match spatially"
             )
 
         if src.shape[0:2] != tgt.shape[0:2]:
-            print(f"Adjusting and embedding source{idx} and its mask into background to match target size.")
             src, mask = embed_source_and_mask_in_background(src, mask, tgt.shape)
 
         if src.shape != tgt.shape:
             raise ValueError(
-                f"After embedding, source and target must match exactly. "
-                f"Got src {src.shape}, tgt {tgt.shape}"
+                "After embedding, source and target must match exactly"
             )
 
         if mask.shape[0:2] != tgt.shape[0:2]:
@@ -65,7 +62,7 @@ if __name__ == "__main__":
             )
 
 
-        blended = laplacian_pyramid_blend(src, tgt, mask, num_layers=7, gauss_size=7, gauss_sigma=2.5)
+        blended = laplacian_pyramid_blend(src, tgt, mask, num_layers=8, gauss_size=7, gauss_sigma=2.5)
 
         out_path = os.path.join(IMAGES_DIR, f"blend{idx}.png")
         save_image(blended, out_path)

@@ -68,10 +68,6 @@ def ComputePyr(input_image, num_layers, gauss_size = 5, gauss_sigma = 2):
 
 
 def reconstruct_from_laplacian(lPyr):
-    """
-    Reconstruct an image from its Laplacian pyramid.
-    Assumes lPyr[-1] is the coarsest Gaussian image.
-    """
     current = lPyr[-1]
     # Go from coarsest-1 back to finest
     for level in reversed(lPyr[:-1]):
@@ -80,23 +76,10 @@ def reconstruct_from_laplacian(lPyr):
     return np.clip(current, 0.0, 1.0)
 
 def laplacian_pyramid_blend(src, tgt, mask, num_layers=5, gauss_size=5, gauss_sigma=2):
-    """
-    Perform Laplacian pyramid blending of two images using a mask.
-
-    Args:
-        src: source image (numpy array, HxW or HxWxC) in [0,1] or [0,255]
-        tgt: target image (same size as src)
-        mask: mask image (same size as src), ideally in [0,1], white=source
-        num_layers: number of pyramid levels
-    Returns:
-        blended: blended image as numpy array in [0,1]
-    """
-    # Ensure float64
     src = src.astype(np.float64)
     tgt = tgt.astype(np.float64)
     mask = mask.astype(np.float64)
 
-    # Normalize ranges if needed
     if src.max() > 1.0:
         src /= 255.0
     if tgt.max() > 1.0:
@@ -104,18 +87,13 @@ def laplacian_pyramid_blend(src, tgt, mask, num_layers=5, gauss_size=5, gauss_si
     if mask.max() > 1.0:
         mask /= 255.0
 
-    # Ensure shapes match
-    #assert src.shape == tgt.shape == mask.shape, "Source, target, and mask must have the same shape."
-
-    # Build pyramids
-    gSrc, lSrc = ComputePyr(src, num_layers, gauss_size, gauss_sigma)
-    gTgt, lTgt = ComputePyr(tgt, num_layers, gauss_size, gauss_sigma)
+    _, lSrc = ComputePyr(src, num_layers, gauss_size, gauss_sigma)
+    _, lTgt = ComputePyr(tgt, num_layers, gauss_size, gauss_sigma)
     gMask, _   = ComputePyr(mask, num_layers, gauss_size, gauss_sigma)
 
     # Blend per level
     blended_pyr = []
     for l_s, l_t, g_m in zip(lSrc, lTgt, gMask):
-        # Make sure mask can broadcast correctly for RGB images
         if l_s.ndim == 3 and g_m.ndim == 2:
             g_m = g_m[..., np.newaxis]
         blended_level = g_m * l_s + (1.0 - g_m) * l_t
@@ -127,27 +105,15 @@ def laplacian_pyramid_blend(src, tgt, mask, num_layers=5, gauss_size=5, gauss_si
 
 
 def embed_source_and_mask_in_background(src, mask, target_shape, top_left=None):
-    """
-    Embed an RGB (or grayscale) src and its single-channel mask into
-    a black background of size target_shape (H,W,3 or H,W).
-    """
-
     H_t, W_t = target_shape[0], target_shape[1]
     H_s, W_s = src.shape[0], src.shape[1]
 
-    # Ensure spatial dims of mask match src initially
-    if mask.shape[:2] != (H_s, W_s):
-        raise ValueError(
-            f"Mask spatial size must match source. Got src {src.shape}, mask {mask.shape}"
-        )
-
-    # --- If source is larger than target, resize BOTH src and mask down to fit ---
+    # If source is larger than target, resize BOTH src and mask down to fit
     if H_s > H_t or W_s > W_t:
         scale = min(H_t / H_s, W_t / W_s)
         new_H = max(1, int(H_s * scale))
         new_W = max(1, int(W_s * scale))
 
-        # Prepare src for resizing
         src_img = src.copy()
         if src_img.max() <= 1.0:
             src_img = (src_img * 255.0)
@@ -158,12 +124,10 @@ def embed_source_and_mask_in_background(src, mask, target_shape, top_left=None):
         else:
             pil_src = Image.fromarray(src_img)  # RGB
 
-        # Prepare mask for resizing
         mask_img = mask.copy()
         if mask_img.max() <= 1.0:
             mask_img = (mask_img * 255.0)
         mask_img = np.clip(mask_img, 0, 255).astype(np.uint8)
-        # ensure 2D for mask
         if mask_img.ndim == 3:
             mask_img = mask_img[..., 0]
         pil_mask = Image.fromarray(mask_img, mode="L")
@@ -179,16 +143,14 @@ def embed_source_and_mask_in_background(src, mask, target_shape, top_left=None):
 
         H_s, W_s = src.shape[0], src.shape[1]
 
-    # --- Create backgrounds ---
+    # Create backgrounds
     if len(target_shape) == 3:
-        # RGB background
         src_bg = np.zeros(target_shape, dtype=src.dtype)
     else:
         src_bg = np.zeros(target_shape, dtype=src.dtype)
 
     mask_bg = np.zeros((H_t, W_t), dtype=mask.dtype)
 
-    # Position (center by default)
     if top_left is None:
         row = (H_t - H_s) // 2
         col = (W_t - W_s) // 2

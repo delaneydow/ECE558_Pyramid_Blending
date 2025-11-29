@@ -141,12 +141,6 @@ class ROIAnnotation:
             print("Mask saved to:", save_path)
 
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = ROIAnnotation(root)
-    root.mainloop()
-
-
 
 
 
