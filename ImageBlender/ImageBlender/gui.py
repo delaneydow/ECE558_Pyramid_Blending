@@ -48,9 +48,10 @@ class ROIAnnotation:
         self.canvas.bind("<ButtonRelease-1>", self.move_mouse_up)
 
     def load_image(self):
-        file_path = filedialog.askopenfilename(
-            filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.tif;*.bmp")]
-        )
+        file_path = filedialog.askopenfilename()  # no filetypes filter so can run on Mac
+        # file_path = filedialog.askopenfilename(
+        #     filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.tif;*.bmp")]
+        # )
         if not file_path:
             return
 
@@ -138,6 +139,7 @@ class ROIAnnotation:
         if save_path:
             mask.save(save_path)
             print("Mask saved to:", save_path)
+
 
 
 
